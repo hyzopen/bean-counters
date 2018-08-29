@@ -55,13 +55,15 @@ always @*
         begin
     
           // Active display, top edge, make a yellow line.
-         if (vcount_in == 0) rgb_new <= 12'hf_f_0;
+          if (vcount_in == 0) rgb_new <= 12'hf_f_0;
           // Active display, bottom edge, make a red line.
           else if (vcount_in == 599) rgb_new <= 12'hf_0_0;
           // Active display, left edge, make a green line.
           else if (hcount_in == 0) rgb_new <= 12'h0_f_0;
           // Active display, right edge, make a blue line.
           else if (hcount_in == 799) rgb_new <= 12'h0_0_f;
+          
+          /*
           // Active display, interior, fill with gray.
              else if        ((vcount_in >= 10 && vcount_in <= 160 && hcount_in >= 10 && hcount_in <= 20)
                              ||(vcount_in <= 160 && hcount_in >= 20 && vcount_in >= hcount_in + 60 && vcount_in <= hcount_in +70)
@@ -71,7 +73,7 @@ always @*
                              ||(vcount_in>=150 && vcount_in <= 160 && hcount_in >= 120 && hcount_in <= 185)
                              ||(vcount_in>=20 && vcount_in <= 80 && hcount_in >= 175 && hcount_in <= 185)
                              ||(vcount_in>=90 && vcount_in <= 150 && hcount_in >= 120 && hcount_in <= 130)) rgb_new <= 12'h1_f_8;
-           else                 
+             */                
            rgb_new <= 12'hf_f_f;   
         end
       end

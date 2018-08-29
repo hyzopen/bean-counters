@@ -3,6 +3,7 @@ module image_rom # (
     x_bit_width = 7,
     y_bit_width = 7,
     image_path = "C:\Users\Klaudusia\Desktop\proj_3\128.data"
+ 
     )
     (
     input wire clk ,

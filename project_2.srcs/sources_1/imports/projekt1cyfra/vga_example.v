@@ -50,15 +50,15 @@ clk_wiz_0   clk_main
  //////////       ODDR module           ///////////////
  ////////////////////////////////////////////////////////  
 
-//    ODDR pclk_oddr (
-//      .Q(pclk_mirror),
-//      .C(clk40),
-//      .CE(1'b1),
-//      .D1(1'b1),
-//      .D2(1'b0),
-//      .R(1'b0),
-//      .S(1'b0)
-//     );
+    ODDR pclk_oddr (
+      .Q(pclk_mirror),
+      .C(clk40),
+      .CE(1'b1),
+      .D1(1'b1),
+      .D2(1'b0),
+      .R(1'b0),
+      .S(1'b0)
+     );
   
   // Instantiate the vga_timing module, which is
   // the module you are designing for this lab.
@@ -118,7 +118,7 @@ draw_background my_background (
     wire vblnk_out, hblnk_out;
     wire [11:0] rgb_out;
     wire [11:0] rgb_pixel; 
-    wire [19:0] address;
+    wire [13:0] address;
     
     draw_rect draw_rect (
         .vcount_in(vcount_out_b),
@@ -160,30 +160,9 @@ MouseCtl mouse_module (
     
 );
 
-////////////////////////////////////////////////////////
-//////////       mouse display           ///////////////
-////////////////////////////////////////////////////////
-
-wire [11:0] xpos_buff,ypos_buff;
-wire [0:3] green_out_m, red_out_m, blue_out_m; 
-
-MouseDisplay mouse_display(
-
-    .xpos(xpos_buff),
-    .ypos(ypos_buff),
-    .pixel_clk(clk40),
-    .red_in(rgb_out[11:8]),
-    .green_in(rgb_out[7:4]),
-    .blue_in(rgb_out[3:0]),
-    .blank(hblnk_out || vblnk_out),
-    .hcount({1'b0,hcount_out+1}),
-    .vcount({1'b0,vcount_out}),
-    
-    
-    .red_out(red_out_m),
-    .green_out(green_out_m),
-    .blue_out(blue_out_m)
-);
+          wire [11:0] xpos_buff,ypos_buff;
+          wire [0:3] green_out_m, red_out_m, blue_out_m; 
+          
 
 ////////////////////////////////////////////////////////
 //////////       buffer module           ///////////////
@@ -224,7 +203,115 @@ image_rom my_rom(
             .xpos(xpos_in),
             .ypos(ypos_in)
                    
-        );     
+        );  
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        wire [9:0] random_number;
+
+        
+        random_algorithm my_random_algorithm(
+            .clk(clk40),
+            .random_number(random_number)
+            );   
+
+
+            
+            wire [11:0] xpos_s, ypos_s, xpos_t, ypos_t;  
+            
+            wire [10:0] hcount_out_s, vcount_out_s, hcount_out_t, vcount_out_s2, hcount_out_s2;
+              wire hsync_out_s, vsync_out_s;
+              wire vblnk_out_s, hblnk_out_s;
+              wire [11:0] rgb_out_s;
+            
+              bag_ctl my_bag_ctl(
+              .clk(clk40),
+              .xpos(xpos_s),
+              .ypos(ypos_s),
+              .random(random_number)
+              
+            );   
+ 
+           wire [20:0] address_s, address_s2;   
+            wire [11:0] rgb_pixel_s,rgb_pixel_s2;
+          image_rom # (
+                  .image_path(),
+                  .x_bit_width(6),
+                  .y_bit_width(5)
+                  )
+                  bag_rom(     
+              .clk(clk40),
+              .address(address_s),
+              .rgb(rgb_pixel_s)
+      
+        );
+        
+        
+        
+        
+         draw_rect # (
+                        .x_bit_width(6),
+                        .y_bit_width(5)
+                        ) my_draw_bag (
+            .vcount_in(vcount_out),
+            .vsync_in(vsync_out),
+            .vblnk_in(vblnk_out),
+            .hcount_in(hcount_out),
+            .hsync_in(hsync_out),
+            .hblnk_in(hblnk_out),
+            .rgb_in(rgb_out),
+            .pclk(clk40),
+            .xpos(xpos_s),  
+            .ypos(ypos_s),
+            .pixel_addr(address_s),
+            .rgb_pixel(rgb_pixel_s),
+//            .rst(rst),
+            
+            .hcount_out(hcount_out_s),
+            .hsync_out(hsync_out_s),
+            .hblnk_out(hblnk_out_s),
+            .vcount_out(vcount_out_s),
+            .vsync_out(vsync_out_s),
+            .vblnk_out(vblnk_out_s),
+            .rgb_out(rgb_out_s)
+          );
+
+ 
+ 
+ 
+ 
+ ////////////////////////////////////////////////////////
+          //////////       mouse display           ///////////////
+          ////////////////////////////////////////////////////////
+          
+
+          
+          MouseDisplay mouse_display(
+          
+              .xpos(xpos_buff),
+              .ypos(ypos_buff),
+              .pixel_clk(clk40),
+              .red_in(rgb_out_s[11:8]),
+              .green_in(rgb_out_s[7:4]),
+              .blue_in(rgb_out_s[3:0]),
+              .blank(hblnk_out_s || vblnk_out_s),
+              .hcount({1'b0,hcount_out_s+1}), 
+              .vcount({1'b0,vcount_out_s}),
+              
+              
+              .red_out(red_out_m),
+              .green_out(green_out_m),
+              .blue_out(blue_out_m)
+          );
+
+ 
  
  
 always @(posedge clk40)
