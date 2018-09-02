@@ -12,6 +12,10 @@
 
 module vga_example (
   input wire clk,
+  input wire rst,
+  input wire start,
+  input wire replay,
+  
   output reg vs,
   output reg hs,
   output reg [3:0] r,
@@ -97,6 +101,7 @@ draw_background my_background (
     .hsync_in(hsync),
     .hblnk_in(hblnk),
     .pclk(clk40),
+    //.rst(rst),
     
     .hcount_out(hcount_out_b),
     .hsync_out(hsync_out_b),
@@ -148,7 +153,7 @@ draw_background my_background (
 //////////       mouse module           ///////////////
 ////////////////////////////////////////////////////////
 
-wire left;
+wire left, right;
 
 MouseCtl mouse_module (
     .clk(clk100),
@@ -156,7 +161,8 @@ MouseCtl mouse_module (
     .ps2_data(ps2_data),
     .xpos(xpos),
     //.ypos(550),
-    .left(left)
+    .left(left),
+    .right(right)
     
 );
 
@@ -196,19 +202,26 @@ image_rom my_rom(
         //////////////////////////////////////////////////////// 
         
         draw_rect_ctl my_ctl(
-            .mouse_left(left),
+//            .mouse_left(left),
             .clk_in(clk40),
+            .rst(rst),
             .mouse_xpos(xpos_buff),
-            .mouse_ypos(ypos_buff),
+//            .mouse_ypos(ypos_buff),
             .xpos(xpos_in),
             .ypos(ypos_in)
                    
         );  
         
         
-       
         
         
+        
+        
+        
+        
+        
+        
+          
         wire [7:0] number;
 
         
@@ -216,152 +229,390 @@ image_rom my_rom(
             .clk(clk40),
             .number(number)
             );   
+ 
             
+            wire restart, end_game;
             
-            wire [11:0] xpos_s, ypos_s; 
+            wire [11:0] xpos_s, ypos_s, xpos_t, ypos_t;  
             
             wire [10:0] hcount_out_s, vcount_out_s;
               wire hsync_out_s, vsync_out_s;
               wire vblnk_out_s, hblnk_out_s;
               wire [11:0] rgb_out_s;
+              wire [7:0] caught_num, bags_peng, bags_peng_1, missed_bags;
             
-    bag_ctl my_bag_ctl(
-        .clk(clk40),
-        .xpos(xpos_s),
-        .ypos(ypos_s),
-        .random(number)
-         );  
-          
-        wire [20:0] address_s, address_s2;   
-        wire [11:0] rgb_pixel_s,rgb_pixel_s2;
-    image_rom # (
-        .image_path(),
-        .x_bit_width(6),
-        .y_bit_width(5)
-        )
-        bag_rom(     
-       .clk(clk40),
-       .address(address_s),
-       .rgb(rgb_pixel_s)
-       );
-                    
-                    
-                    
-                    
-                     draw_rect # (
-                                    .x_bit_width(6),
-                                    .y_bit_width(5)
-                                    ) my_draw_bag (
-                        .vcount_in(vcount_out),
-                        .vsync_in(vsync_out),
-                        .vblnk_in(vblnk_out),
-                        .hcount_in(hcount_out),
-                        .hsync_in(hsync_out),
-                        .hblnk_in(hblnk_out),
-                        .rgb_in(rgb_out),
-                        .pclk(clk40),
-                        .xpos(xpos_s),  
-                        .ypos(ypos_s),
-                        .pixel_addr(address_s),
-                        .rgb_pixel(rgb_pixel_s),
-                        
-                        .hcount_out(hcount_out_s),
-                        .hsync_out(hsync_out_s),
-                        .hblnk_out(hblnk_out_s),
-                        .vcount_out(vcount_out_s),
-                        .vsync_out(vsync_out_s),
-                        .vblnk_out(vblnk_out_s),
-                        .rgb_out(rgb_out_s)
-                      );
-
- //char control
-  
-           wire [10:0] hcount_out_c, vcount_out_c;
-           wire hsync_out_c, vsync_out_c;
-           wire vblnk_out_c, hblnk_out_c;
-           wire [11:0] rgb_out_c;
-               
-            wire [7:0] char_pixels, char_xy;
-            wire [3:0] char_line;
-            wire [6:0] char_code;
-            wire [10:0] addr;
-            
-            draw_rect_char # (
-              .X_UP_LEFT_CORNER(600),
-              .Y_UP_LEFT_CORNER(50)
-              )
-            my_draw_rect_char(
-              .pclk(clk40),
-              .hcount_in(hcount_out_s),
-              .hsync_in(hsync_out_s),
-              .hblnk_in(hblnk_out_s),
-              .vcount_in(vcount_out_s),
-              .vsync_in(vsync_out_s),
-              .vblnk_in(vblnk_out_s),
-              .rgb_in(rgb_out_s),
-              .char_pixels(char_pixels),
-              
-              .hcount_out(hcount_out_c),
-              .hsync_out(hsync_out_c),
-              .hblnk_out(hblnk_out_c),
-              .vcount_out(vcount_out_c),
-              .vsync_out(vsync_out_c),
-              .vblnk_out(vblnk_out_c),
-              .rgb_out(rgb_out_c),
-              .char_xy(char_xy),
-              .char_line(char_line)
-            ); 
-            
-            char_score my_char_score(
+              bag_ctl my_bag_ctl(
               .clk(clk40),
-              .char_xy(char_xy),
+              .rst(rst),
+              .random(number),
+              .xpos_p(xpos_in),
+              .restart(restart),
+              //.bags_peng_in(bags_peng_1),
+              
+              .xpos(xpos_s),
+              .ypos(ypos_s),
               .caught_num(caught_num),
+              .bags_peng(bags_peng),
+              .missed_bags(missed_bags)
               
-              .char_code(char_code)
-            );
-            
-            assign addr = {char_code, char_line};
-            
-            font_rom my_font_rom(
-              .clk(clk40),
-              .addr(addr),
-              .char_line_pixels(char_pixels)
             );   
  
+           wire [20:0] address_s, address_s2;   
+           wire [11:0] rgb_pixel_s,rgb_pixel_s2;
+          image_rom # (
+                  .image_path(""),
+                  .x_bit_width(6),
+                  .y_bit_width(5)
+                  )
+                  bag_rom(     
+              .clk(clk40),
+              .address(address_s),
+              .rgb(rgb_pixel_s)
+      
+        );
+        
+        
+        
+        
+         draw_rect # (
+              .x_bit_width(6),
+              .y_bit_width(5)
+              )
+          my_draw_bag (
+            .vcount_in(vcount_out),
+            .vsync_in(vsync_out),
+            .vblnk_in(vblnk_out),
+            .hcount_in(hcount_out),
+            .hsync_in(hsync_out),
+            .hblnk_in(hblnk_out),
+            .rgb_in(rgb_out),
+            .pclk(clk40),
+            .xpos(xpos_s),  
+            .ypos(ypos_s),
+            .pixel_addr(address_s),
+            .rgb_pixel(rgb_pixel_s),
+//            .rst(rst),
+            
+            .hcount_out(hcount_out_s),
+            .hsync_out(hsync_out_s),
+            .hblnk_out(hblnk_out_s),
+            .vcount_out(vcount_out_s),
+            .vsync_out(vsync_out_s),
+            .vblnk_out(vblnk_out_s),
+            .rgb_out(rgb_out_s)
+          );
+
+
+
+
+wire [7:0] ones, tens, hundreds;
+
+    score_conv my_score_conv (
+        .clk(clk40),
+        .rst(rst),
+        .caught_num(caught_num),
+        .end_game(end_game),
+        
+        .ones(ones),
+        .tens(tens),
+        .hundreds(hundreds)
+    );
+  //char score control
+  
+    wire [10:0] hcount_out_c, vcount_out_c;
+    wire hsync_out_c, vsync_out_c;
+    wire vblnk_out_c, hblnk_out_c;
+    wire [11:0] rgb_out_c;
+               
+    wire [7:0] char_pixels, char_xy;
+    wire [3:0] char_line;
+    wire [6:0] char_code;
+    wire [10:0] addr;
+            
+    draw_rect_char # (
+        .X_UP_LEFT_CORNER(543),
+        .Y_UP_LEFT_CORNER(50)
+    )
+    my_draw_rect_char(
+        .pclk(clk40),
+        .hcount_in(hcount_out_s),
+        .hsync_in(hsync_out_s),
+        .hblnk_in(hblnk_out_s),
+        .vcount_in(vcount_out_s),
+        .vsync_in(vsync_out_s),
+        .vblnk_in(vblnk_out_s),
+        .rgb_in(rgb_out_s),
+        .char_pixels(char_pixels),
+              
+        .hcount_out(hcount_out_c),
+        .hsync_out(hsync_out_c),
+        .hblnk_out(hblnk_out_c),
+        .vcount_out(vcount_out_c),
+        .vsync_out(vsync_out_c),
+        .vblnk_out(vblnk_out_c),
+        .rgb_out(rgb_out_c),
+        .char_xy(char_xy),
+        .char_line(char_line)
+    ); 
+            
+    char_score my_char_score(
+        .char_xy(char_xy),
+        .ones(ones),
+        .tens(tens),
+        .hundreds(hundreds),
+              
+        .char_code(char_code)
+    );
+            
+    assign addr = {char_code, char_line};
+            
+    font_rom my_font_rom(
+        .clk(clk40),
+        .addr(addr),
+        .char_line_pixels(char_pixels)
+    );   
+ 
+ 
+ //
+ 
+    peng_bags_ctl my_peng_bags_ctl(
+        .clk(clk40),
+        .rst(rst),
+        .restart(restart),
+        .xpos_p(xpos_in),
+        .mouse_left(left),
+        .bags_peng_in(bags_peng),
+              
+        .bags_peng_out(bags_peng_1)
+    );
+ 
+ //char carried bags control
+              
+    wire [10:0] hcount_out_h, vcount_out_h;
+    wire hsync_out_h, vsync_out_h;
+    wire vblnk_out_h, hblnk_out_h;
+    wire [11:0] rgb_out_h;
+                           
+    wire [7:0] char_pixels_1, char_xy_1;
+    wire [3:0] char_line_1;
+    wire [6:0] char_code_1;
+    wire [10:0] addr_1;
+                        
+    draw_rect_char # (
+        .X_UP_LEFT_CORNER(671),
+        .Y_UP_LEFT_CORNER(50)
+    )
+    my_draw_rect_char_h(
+        .pclk(clk40),
+        .hcount_in(hcount_out_c),
+        .hsync_in(hsync_out_c),
+        .hblnk_in(hblnk_out_c),
+        .vcount_in(vcount_out_c),
+        .vsync_in(vsync_out_c),
+        .vblnk_in(vblnk_out_c),
+        .rgb_in(rgb_out_c),
+        .char_pixels(char_pixels_1),
+                          
+        .hcount_out(hcount_out_h),
+        .hsync_out(hsync_out_h),
+        .hblnk_out(hblnk_out_h),
+        .vcount_out(vcount_out_h),
+        .vsync_out(vsync_out_h),
+        .vblnk_out(vblnk_out_h),
+        .rgb_out(rgb_out_h),
+        .char_xy(char_xy_1),
+        .char_line(char_line_1)
+    ); 
+                        
+    char_peng_bags my_char_held_bags(
+        .clk(clk40),
+        .char_xy(char_xy_1),
+        .peng_bags(bags_peng_1),
+                          
+        .char_code(char_code_1)
+    );
+                        
+    assign addr_1 = {char_code_1, char_line_1};
+                        
+    font_rom my_font_rom_h(
+        .clk(clk40),
+        .addr(addr_1),
+        .char_line_pixels(char_pixels_1)
+    );   
+             
  
  
  
+  //char life control
+    wire [10:0] hcount_out_l, vcount_out_l;
+    wire hsync_out_l, vsync_out_l;
+    wire vblnk_out_l, hblnk_out_l;
+    wire [11:0] rgb_out_l;
+                                                  
+    wire [7:0] char_pixels_2, char_xy_2;
+    wire [3:0] char_line_2;
+    wire [6:0] char_code_2;
+    wire [10:0] addr_2;
+                                                 
+    draw_rect_char # (
+        .X_UP_LEFT_CORNER(415),
+        .Y_UP_LEFT_CORNER(50),
+        .TEXT_COLOR (12'hf_0_0),
+        .TEXT_HEIGHT(1)
+    )
+    my_draw_rect_char_l(
+        .pclk(clk40),
+        .hcount_in(hcount_out_h),
+        .hsync_in(hsync_out_h),
+        .hblnk_in(hblnk_out_h),
+        .vcount_in(vcount_out_h),
+        .vsync_in(vsync_out_h),
+        .vblnk_in(vblnk_out_h),
+        .rgb_in(rgb_out_h),
+        .char_pixels(char_pixels_2),
+                                                 
+        .hcount_out(hcount_out_l),
+        .hsync_out(hsync_out_l),
+        .hblnk_out(hblnk_out_l),
+        .vcount_out(vcount_out_l),
+        .vsync_out(vsync_out_l),
+        .vblnk_out(vblnk_out_l),
+        .rgb_out(rgb_out_l),
+        .char_xy(char_xy_2),
+        .char_line(char_line_2)
+    ); 
+
+    char_life my_char_life(
+        .clk(clk40),
+        .char_xy(char_xy_2),
+        .missed_bags(missed_bags),
+                                                 
+        .char_code(char_code_2)
+    );
+                                               
+    assign addr_2 = {char_code_2, char_line_2};
+                                               
+    font_rom my_font_rom_l(
+        .clk(clk40),
+        .addr(addr_2),
+        .char_line_pixels(char_pixels_2)
+    );   
+                     
+                     
+                     
+                     
+    wire [10:0] hcount_out_st, vcount_out_st;
+    wire hsync_out_st, vsync_out_st, hblnk_out_st, vblnk_out_st;
+    wire [11:0] rgb_out_st;                 
+                     
+    draw_start my_draw_start(
+        .clk_s(clk40),
+        .rst(rst),
+        .vcount_in(vcount_out_l),
+        .vsync_in(vsync_out_l),
+        .vblnk_in(vblnk_out_l),
+        .hcount_in(hcount_out_l),
+        .hsync_in(hsync_out_l),
+        .hblnk_in(hblnk_out_l),
+                                                    
+        .vcount_out(vcount_out_st),
+        .vsync_out(vsync_out_st),
+        .vblnk_out(vblnk_out_st),
+        .hcount_out(hcount_out_st),
+        .hsync_out(hsync_out_st),
+        .hblnk_out(hblnk_out_st),
+        .rgb_out(rgb_out_st)
+                                               
+    );               
+    
+    wire [10:0] hcount_out_e, vcount_out_e;
+    wire hsync_out_e, vsync_out_e, hblnk_out_e, vblnk_out_e;
+    wire [11:0] rgb_out_e;                 
+                        
+    draw_end my_draw_end(
+        .clk_e(clk40),
+        .rst(rst),
+        .vcount_in(vcount_out_st),
+        .vsync_in(vsync_out_st),
+        .vblnk_in(vblnk_out_st),
+        .hcount_in(hcount_out_st),
+        .hsync_in(hsync_out_st),
+        .hblnk_in(hblnk_out_st),
+        .ones(ones),
+        .tens(tens),
+        .hundreds(hundreds),
+                                                       
+        .vcount_out(vcount_out_e),
+        .vsync_out(vsync_out_e),
+        .vblnk_out(vblnk_out_e),
+        .hcount_out(hcount_out_e),
+        .hsync_out(hsync_out_e),
+        .hblnk_out(hblnk_out_e),
+        .rgb_out(rgb_out_e)
+                                                  
+       );         
+       
+    
+    wire hsync_out_menu, vsync_out_menu;
+    wire [11:0] rgb_out_menu;      
+    menu_ctl my_menu(
+        .clk(clk40),
+        .rst(rst),
+        .start(start),
+        .replay(replay),
+        .mouse_left(left),
+        .mouse_right(right),
+        .missed_bags(missed_bags),
+        .bags_carried(bags_peng_1),
+        .hsync_s(hsync_out_st),
+        .vsync_s(vsync_out_st),
+        .rgb_s(rgb_out_st),
+        .hsync_g(hsync_out_l),
+        .vsync_g(vsync_out_l),
+        .rgb_g(rgb_out_l),
+        .hsync_e(hsync_out_e),
+        .vsync_e(vsync_out_e),
+        .rgb_e(rgb_out_e),
+               
+        .restart(restart),
+        .end_game(end_game),
+        .hsync_out(hsync_out_menu),
+        .vsync_out(vsync_out_menu),
+        .rgb_out(rgb_out_menu)
+    );
+       
+             
  ////////////////////////////////////////////////////////
           //////////       mouse display           ///////////////
           ////////////////////////////////////////////////////////
           
 
           
-          MouseDisplay mouse_display(
+//          MouseDisplay mouse_display(
           
-              .xpos(xpos_buff),
-              .ypos(ypos_buff),
-              .pixel_clk(clk40),
-              .red_in(rgb_out_s[11:8]),
-              .green_in(rgb_out_s[7:4]),
-              .blue_in(rgb_out_s[3:0]),
-              .blank(hblnk_out_s || vblnk_out_s),
-              .hcount({1'b0,hcount_out_s+1}), 
-              .vcount({1'b0,vcount_out_s}),
+//              .xpos(xpos_buff),
+//              .ypos(ypos_buff),
+//              .pixel_clk(clk40),
+//              .red_in(rgb_out_l[11:8]),
+//              .green_in(rgb_out_l[7:4]),
+//              .blue_in(rgb_out_l[3:0]),
+//              .blank(hblnk_out_l || vblnk_out_l),
+//              .hcount({1'b0,hcount_out_l+1}), 
+//              .vcount({1'b0,vcount_out_l}),
               
               
-              .red_out(red_out_m),
-              .green_out(green_out_m),
-              .blue_out(blue_out_m)
-          );
+//              .red_out(red_out_m),
+//              .green_out(green_out_m),
+//              .blue_out(blue_out_m)
+//          );
 
  
  
  
 always @(posedge clk40)
             begin
-              hs <= hsync;
-              vs <= vsync;
-              {r,g,b} <=  {red_out_m,green_out_m,blue_out_m};
+              hs <= hsync_out_menu;
+              vs <= vsync_out_menu;
+              //{r,g,b} <=  {red_out_m,green_out_m,blue_out_m};
+              {r,g,b} <=  rgb_out_menu;
            end       
-endmodule
