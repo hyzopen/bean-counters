@@ -28,7 +28,7 @@ module menu_ctl(
     input wire mouse_left,
     input wire mouse_right,
     input wire [7:0] missed_bags,
-    input wire [7:0] bags_carried,
+    input wire [3:0] held_bags,
     input wire hsync_s,
     input wire vsync_s,
     input wire [11:0] rgb_s,
@@ -47,14 +47,15 @@ module menu_ctl(
     );
     
     
-    localparam  STATE_SIZE  = 2;
-    localparam  STATE_START = 2'b00,
-                STATE_GAME  = 2'b01,
-                STATE_END   = 2'b11;
+    localparam  STATE_BITS  = 2;
+    localparam  
+    STATE_START = 2'b00,
+    STATE_GAME  = 2'b01,
+    STATE_END   = 2'b11;
                 
    reg hsync_out_nxt = 0, vsync_out_nxt = 0, restart_nxt = 0, end_game_nxt = 0;
    reg [11:0] rgb_out_nxt = 0;
-   reg [STATE_SIZE - 1 : 0] state, state_nxt;
+   reg [STATE_BITS-1 : 0] state, state_nxt;
    
    
    
@@ -81,7 +82,7 @@ module menu_ctl(
    always @* begin
         case(state)
             STATE_START :   state_nxt = mouse_left || start ? STATE_GAME : STATE_START;
-            STATE_GAME :    state_nxt = (missed_bags == 4 || bags_carried == 6) ? STATE_END : STATE_GAME;
+            STATE_GAME :    state_nxt = (missed_bags == 4 || held_bags == 6) ? STATE_END : STATE_GAME;
             STATE_END :     state_nxt = replay || mouse_right ? STATE_START : STATE_END;
             default :       state_nxt = STATE_START;
         endcase

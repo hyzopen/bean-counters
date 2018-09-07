@@ -14,24 +14,45 @@
 
 module number_generator(
     input wire clk,
+    input wire rst,
     output reg [7:0] number
     );
     
-
-    reg [7:0] number_nxt, number_previous;
- 
-    always @(posedge clk) begin
-        number          <= number_nxt;
-        number_previous <= number;
+    
+     
+    reg [7:0] random, random_next, random_done;
+    reg [3:0] count, count_next; 
+    wire feedback = random[7] ^ random[5] ^ random[4] ^ random[3]; 
+     
+    always @ (posedge clk)
+    begin
+     if (rst)
+     begin
+      random <= 8'hF; 
+      count <= 4'hF;
+      number <= 0;
+     end
+      
+     else
+     begin
+      random <= random_next;
+      count <= count_next;
+      number <= random_done;
+     end
     end
+     
+    always @ (*)
+    begin
        
-    always @* begin   
-        if(number + number_previous > 100)
-            number_nxt = number + number_previous - 100;
-        else
-            number_nxt = number + number_previous;
-        if(number_nxt == 0) 
-            number_nxt = 1;
+      random_next = {random[6:0], feedback}; 
+      count_next = count + 1;
+     
+     if (count == 8)
+     begin
+      count_next = 0;
+      random_done = random;
+     end
+      
     end
     
 endmodule
