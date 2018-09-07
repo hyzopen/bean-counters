@@ -22,7 +22,9 @@ module draw_rect_char
     # ( parameter
         X_UP_LEFT_CORNER = 0,
         Y_UP_LEFT_CORNER = 0,
-        TEXT_COLOR       = 12'h0_0_0
+        TEXT_COLOR       = 12'h0_0_0,
+        TEXT_WIDTH       = 16,
+        TEXT_HEIGHT      = 2
     )
     (  
     input wire        pclk,
@@ -47,10 +49,6 @@ module draw_rect_char
     );
 
 
-    localparam X_RECT_SIZE = 64;
-    localparam Y_RECT_SIZE = 32;
-    
-    reg [11:0] x_up_left_corner_to_draw=0, y_up_left_corner_to_draw=0;
    // localparam X = 0, Y=0;
     
     reg [10:0] hcount_in_1, hcount_in_2, hcount_in_3;
@@ -61,12 +59,7 @@ module draw_rect_char
     reg vblnk_in_1, vblnk_in_2, vblnk_in_3;
     reg [11:0] rgb_in_1, rgb_in_2, rgb_in_3;
     
-//    reg [11:0] rgb_out_nxt = 12'h8_8_8; //grey background
-//    reg [7:0] char_xy_nxt;
-//    reg [3:0] char_line_nxt;
 
-   localparam  TEXT_WIDTH = 16,
-               TEXT_HIGH = 2;
                     
         reg [3:0] pixel_index = 0;
         reg [11:0] rgb_in_nxt = 0, rgb_out_nxt = 0;
@@ -150,14 +143,14 @@ always @(posedge pclk)
                 pixel_index = 0;
                 hcount_temp = hcount_in - X_UP_LEFT_CORNER;
                 vcount_temp = vcount_in - Y_UP_LEFT_CORNER;
-                if((hcount_out >= X_UP_LEFT_CORNER) && (hcount_out < X_UP_LEFT_CORNER + 8*TEXT_WIDTH) && (vcount_out >= Y_UP_LEFT_CORNER) &&(vcount_out < Y_UP_LEFT_CORNER + 16*TEXT_HIGH)) begin  
+                if((hcount_out >= X_UP_LEFT_CORNER) && (hcount_out < X_UP_LEFT_CORNER + 8*TEXT_WIDTH) && (vcount_out >= Y_UP_LEFT_CORNER) &&(vcount_out < Y_UP_LEFT_CORNER + 16*TEXT_HEIGHT)) begin  
                     pixel_index = (hcount_out - X_UP_LEFT_CORNER) % 8;
                     if(char_pixels[7-pixel_index] == 1) begin
                         rgb_out_nxt = TEXT_COLOR;
                     end  
                     //else rgb_out_nxt = 12'h0_f_f;          
                 end
-                if((hcount_in >= X_UP_LEFT_CORNER) && (hcount_in < X_UP_LEFT_CORNER + 8*TEXT_WIDTH) && (vcount_in >= Y_UP_LEFT_CORNER) &&(vcount_in < Y_UP_LEFT_CORNER + 16*TEXT_HIGH)) begin
+                if((hcount_in >= X_UP_LEFT_CORNER) && (hcount_in < X_UP_LEFT_CORNER + 8*TEXT_WIDTH) && (vcount_in >= Y_UP_LEFT_CORNER) &&(vcount_in < Y_UP_LEFT_CORNER + 16*TEXT_HEIGHT)) begin
                     char_line_nxt   = vcount_temp[3:0];
                     char_xy_nxt     = {vcount_temp[7:4], hcount_temp[6:3]};
                     

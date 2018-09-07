@@ -22,20 +22,28 @@
 
 module char_peng_bags(
    input wire clk,
+   input wire rst,
    input wire [7:0] char_xy,
    input wire [7:0] peng_bags,
    
    output reg [6:0] char_code
    );
        
-   localparam ASCII_CONV = 48;
+    localparam ASCII_CONV = 48;
    
-   reg [7:0] tens = 0, ones = 0, hundreds = 0, tens_nxt = 0, ones_nxt = 0, hundreds_nxt = 0;
+    reg [7:0] tens, ones, hundreds, tens_nxt, ones_nxt, hundreds_nxt;
    
-   always @(posedge clk) begin
-       hundreds <= hundreds_nxt;
-       tens <= tens_nxt;
-       ones <= ones_nxt;
+    always @(posedge clk) begin
+        if(rst) begin
+            hundreds    <= 0;
+            tens        <= 0;
+            ones        <= 0;
+        end
+        else begin
+            hundreds    <= hundreds_nxt;
+            tens        <= tens_nxt;
+            ones        <= ones_nxt;
+        end
    end
    
    

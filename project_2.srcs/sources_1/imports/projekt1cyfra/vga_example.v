@@ -36,7 +36,7 @@ module vga_example (
 wire clk100;
 wire clk40;
 wire locked;
-wire reset;
+//wire reset;
 
 clk_wiz_0   clk_main 
  (
@@ -44,7 +44,7 @@ clk_wiz_0   clk_main
   .clk100MHz(clk100),
   .clk40Mhz(clk40),
   // Status and control signals
-  .reset(reset),
+  .reset(1'b0),
   .locked(locked),
  // Clock in ports
   .clk(clk)
@@ -75,23 +75,24 @@ clk_wiz_0   clk_main
   wire vblnk, hblnk;
 
   vga_timing my_timing (
+    .pclk(clk40),
+    .rst(rst),
     .vcount(vcount),
     .vsync(vsync),
     .vblnk(vblnk),
     .hcount(hcount),
     .hsync(hsync),
-    .hblnk(hblnk),
-    .pclk(clk40)
+    .hblnk(hblnk)
   );
 
 ////////////////////////////////////////////////////////////
 //////////       background module           ///////////////
 ///////////////////////////////////////////////////////////
 
-wire [10:0] vcount_out_b, hcount_out_b;
-wire vsync_out_b, hsync_out_b;
-wire vblnk_out_b, hblnk_out_b;
-wire [11:0] rgb_out_b;
+wire [10:0] vcount_out_bg, hcount_out_bg;
+wire vsync_out_bg, hsync_out_bg;
+wire vblnk_out_bg, hblnk_out_bg;
+wire [11:0] rgb_out_bg;
 
 draw_background my_background (
     .vcount_in(vcount),
@@ -101,15 +102,15 @@ draw_background my_background (
     .hsync_in(hsync),
     .hblnk_in(hblnk),
     .pclk(clk40),
-    //.rst(rst),
+    .rst(rst),
     
-    .hcount_out(hcount_out_b),
-    .hsync_out(hsync_out_b),
-    .hblnk_out(hblnk_out_b),
-    .vcount_out(vcount_out_b),
-    .vsync_out(vsync_out_b),
-    .vblnk_out(vblnk_out_b),
-    .rgb_out(rgb_out_b)
+    .hcount_out(hcount_out_bg),
+    .hsync_out(hsync_out_bg),
+    .hblnk_out(hblnk_out_bg),
+    .vcount_out(vcount_out_bg),
+    .vsync_out(vsync_out_bg),
+    .vblnk_out(vblnk_out_bg),
+    .rgb_out(rgb_out_bg)
   );
   
 //////////////////////////////////////////////////////////////
@@ -126,14 +127,15 @@ draw_background my_background (
     wire [13:0] address;
     
     draw_rect draw_rect (
-        .vcount_in(vcount_out_b),
-        .vsync_in(vsync_out_b),
-        .vblnk_in(vblnk_out_b),
-        .hcount_in(hcount_out_b),
-        .hsync_in(hsync_out_b),
-        .hblnk_in(hblnk_out_b),
-        .rgb_in(rgb_out_b),
         .pclk(clk40),
+        .rst(rst),
+        .vcount_in(vcount_out_bg),
+        .vsync_in(vsync_out_bg),
+        .vblnk_in(vblnk_out_bg),
+        .hcount_in(hcount_out_bg),
+        .hsync_in(hsync_out_bg),
+        .hblnk_in(hblnk_out_bg),
+        .rgb_in(rgb_out_bg),
         .xpos(xpos_in),
         .ypos(450),
         
@@ -157,6 +159,7 @@ wire left, right;
 
 MouseCtl mouse_module (
     .clk(clk100),
+    .rst(rst),
     .ps2_clk(ps2_clk),
     .ps2_data(ps2_data),
     .xpos(xpos),
@@ -177,9 +180,10 @@ MouseCtl mouse_module (
 
 
 buffer_module buffer_module(
+    .clk(clk40),
+    .rst(rst),
     .xpos_in(xpos),
     .ypos_in(450),
-    .clk(clk40),
     
     .xpos_out(xpos_buff),
     .ypos_out(ypos_buff)
@@ -221,44 +225,47 @@ image_rom my_rom(
         
         
         
-          
-        wire [7:0] number;
+        wire [9:0] random_number;
 
         
         number_generator my_number_generator(
             .clk(clk40),
-            .number(number)
+            .number(random_number)
             );   
  
             
-            wire restart, end_game;
+            wire restart, end_game, enable_second, enable_third;
             
-            wire [11:0] xpos_s, ypos_s, xpos_t, ypos_t;  
+            wire [11:0] xpos_b, ypos_b;  
             
-            wire [10:0] hcount_out_s, vcount_out_s;
-              wire hsync_out_s, vsync_out_s;
-              wire vblnk_out_s, hblnk_out_s;
-              wire [11:0] rgb_out_s;
-              wire [7:0] caught_num, bags_peng, bags_peng_1, missed_bags;
-            
-              bag_ctl my_bag_ctl(
+            wire [10:0] hcount_out_b, vcount_out_b;
+              wire hsync_out_b, vsync_out_b;
+              wire vblnk_out_b, hblnk_out_b;
+              wire [11:0] rgb_out_b;
+              wire [7:0] bags_peng, bags_peng_1, bags_peng_out, missed_bags, missed_bags_1;
+              
+              
+  //first bag///
+  //////////////          
+              bag_ctl my_first_bag(
               .clk(clk40),
               .rst(rst),
-              .random(number),
+              .random(random_number),
               .xpos_p(xpos_in),
               .restart(restart),
+              .enable_bag(1'b1),
               //.bags_peng_in(bags_peng_1),
               
-              .xpos(xpos_s),
-              .ypos(ypos_s),
-              .caught_num(caught_num),
-              .bags_peng(bags_peng),
-              .missed_bags(missed_bags)
+              .xpos(xpos_b),
+              .ypos(ypos_b),
+              //.caught_num(caught_num),
+              .bags_peng(bags_peng_1),
+              .missed_bags(missed_bags_1)
               
             );   
  
-           wire [20:0] address_s, address_s2;   
-           wire [11:0] rgb_pixel_s,rgb_pixel_s2;
+           wire [20:0] address_b;   
+           wire [11:0] rgb_pixel_b;
           image_rom # (
                   .image_path(""),
                   .x_bit_width(6),
@@ -266,8 +273,8 @@ image_rom my_rom(
                   )
                   bag_rom(     
               .clk(clk40),
-              .address(address_s),
-              .rgb(rgb_pixel_s)
+              .address(address_b),
+              .rgb(rgb_pixel_b)
       
         );
         
@@ -287,30 +294,184 @@ image_rom my_rom(
             .hblnk_in(hblnk_out),
             .rgb_in(rgb_out),
             .pclk(clk40),
-            .xpos(xpos_s),  
-            .ypos(ypos_s),
-            .pixel_addr(address_s),
-            .rgb_pixel(rgb_pixel_s),
-//            .rst(rst),
+            .xpos(xpos_b),  
+            .ypos(ypos_b),
+            .pixel_addr(address_b),
+            .rgb_pixel(rgb_pixel_b),
+            .rst(rst),
             
-            .hcount_out(hcount_out_s),
-            .hsync_out(hsync_out_s),
-            .hblnk_out(hblnk_out_s),
-            .vcount_out(vcount_out_s),
-            .vsync_out(vsync_out_s),
-            .vblnk_out(vblnk_out_s),
-            .rgb_out(rgb_out_s)
+            .hcount_out(hcount_out_b),
+            .hsync_out(hsync_out_b),
+            .hblnk_out(hblnk_out_b),
+            .vcount_out(vcount_out_b),
+            .vsync_out(vsync_out_b),
+            .vblnk_out(vblnk_out_b),
+            .rgb_out(rgb_out_b)
           );
 
+/////////////////////////////////////////////
+/////////////////////////////////////////////
+
+//second bag
+ wire [11:0] xpos_b2, ypos_b2;  
+           
+           wire [10:0] hcount_out_b2, vcount_out_b2;
+             wire hsync_out_b2, vsync_out_b2;
+             wire vblnk_out_b2, hblnk_out_b2;
+             wire [11:0] rgb_out_b2;
+             wire [7:0] bags_peng_2, missed_bags_2;
+             
+  bag_ctl my_second_bag(
+            .clk(clk40),
+            .rst(rst),
+            .random(random_number),
+            .xpos_p(xpos_in),
+            .restart(restart),
+            .enable_bag(enable_second),
+            //.bags_peng_in(bags_peng_1),
+            
+            .xpos(xpos_b2),
+            .ypos(ypos_b2),
+            //.caught_num(caught_num),
+            .bags_peng(bags_peng_2),
+            .missed_bags(missed_bags_2)
+            
+          );   
+
+         wire [20:0] address_b2;   
+         wire [11:0] rgb_pixel_b2;
+        image_rom # (
+                .image_path(""),
+                .x_bit_width(6),
+                .y_bit_width(5)
+                )
+                second_bag_rom(     
+            .clk(clk40),
+            .address(address_b2),
+            .rgb(rgb_pixel_b2)
+    
+      );
+      
+      
+      
+      
+       draw_rect # (
+            .x_bit_width(6),
+            .y_bit_width(5)
+            )
+        my_draw_second_bag (
+          .vcount_in(vcount_out_b),
+          .vsync_in(vsync_out_b),
+          .vblnk_in(vblnk_out_b),
+          .hcount_in(hcount_out_b),
+          .hsync_in(hsync_out_b),
+          .hblnk_in(hblnk_out_b),
+          .rgb_in(rgb_out_b),
+          .pclk(clk40),
+          .xpos(xpos_b2),  
+          .ypos(ypos_b2),
+          .pixel_addr(address_b2),
+          .rgb_pixel(rgb_pixel_b2),
+          .rst(rst),
+          
+          .hcount_out(hcount_out_b2),
+          .hsync_out(hsync_out_b2),
+          .hblnk_out(hblnk_out_b2),
+          .vcount_out(vcount_out_b2),
+          .vsync_out(vsync_out_b2),
+          .vblnk_out(vblnk_out_b2),
+          .rgb_out(rgb_out_b2)
+        );
+
+//third bag
+/////////////////////////////
+ wire [11:0] xpos_b3, ypos_b3;  
+           
+           wire [10:0] hcount_out_b3, vcount_out_b3;
+             wire hsync_out_b3, vsync_out_b3;
+             wire vblnk_out_b3, hblnk_out_b3;
+             wire [11:0] rgb_out_b3;
+             wire [7:0] bags_peng_3, missed_bags_3;
+             
+  bag_ctl my_third_bag(
+            .clk(clk40),
+            .rst(rst),
+            .random(random_number),
+            .xpos_p(xpos_in),
+            .restart(restart),
+            .enable_bag(enable_third),
+            //.bags_peng_in(bags_peng_1),
+            
+            .xpos(xpos_b3),
+            .ypos(ypos_b3),
+            //.caught_num(caught_num),
+            .bags_peng(bags_peng_3),
+            .missed_bags(missed_bags_3)
+            
+          );   
+
+         wire [20:0] address_b3;   
+         wire [11:0] rgb_pixel_b3;
+        image_rom # (
+                .image_path(""),
+                .x_bit_width(6),
+                .y_bit_width(5)
+                )
+                third_bag_rom(     
+            .clk(clk40),
+            .address(address_b3),
+            .rgb(rgb_pixel_b3)
+    
+      );
+      
+      
+      
+      
+       draw_rect # (
+            .x_bit_width(6),
+            .y_bit_width(5)
+            )
+        my_draw_third_bag (
+          .vcount_in(vcount_out_b2),
+          .vsync_in(vsync_out_b2),
+          .vblnk_in(vblnk_out_b2),
+          .hcount_in(hcount_out_b2),
+          .hsync_in(hsync_out_b2),
+          .hblnk_in(hblnk_out_b2),
+          .rgb_in(rgb_out_b2),
+          .pclk(clk40),
+          .xpos(xpos_b3),  
+          .ypos(ypos_b3),
+          .pixel_addr(address_b3),
+          .rgb_pixel(rgb_pixel_b3),
+          .rst(rst),
+          
+          .hcount_out(hcount_out_b3),
+          .hsync_out(hsync_out_b3),
+          .hblnk_out(hblnk_out_b3),
+          .vcount_out(vcount_out_b3),
+          .vsync_out(vsync_out_b3),
+          .vblnk_out(vblnk_out_b3),
+          .rgb_out(rgb_out_b3)
+        );
+
+wire [7:0] ones, tens, hundreds, score;
 
 
-
-wire [7:0] ones, tens, hundreds;
+    bag_enable my_bags_enable(
+        .clk(clk40),
+        .rst(rst),
+        .score(score),
+        .restart(restart),
+        
+        .enable_second(enable_second),
+        .enable_third(enable_third)
+        );
 
     score_conv my_score_conv (
         .clk(clk40),
         .rst(rst),
-        .caught_num(caught_num),
+        .caught_num(score),
         .end_game(end_game),
         
         .ones(ones),
@@ -335,13 +496,13 @@ wire [7:0] ones, tens, hundreds;
     )
     my_draw_rect_char(
         .pclk(clk40),
-        .hcount_in(hcount_out_s),
-        .hsync_in(hsync_out_s),
-        .hblnk_in(hblnk_out_s),
-        .vcount_in(vcount_out_s),
-        .vsync_in(vsync_out_s),
-        .vblnk_in(vblnk_out_s),
-        .rgb_in(rgb_out_s),
+        .hcount_in(hcount_out_b3),
+        .hsync_in(hsync_out_b3),
+        .hblnk_in(hblnk_out_b3),
+        .vcount_in(vcount_out_b3),
+        .vsync_in(vsync_out_b3),
+        .vblnk_in(vblnk_out_b3),
+        .rgb_in(rgb_out_b3),
         .char_pixels(char_pixels),
               
         .hcount_out(hcount_out_c),
@@ -374,6 +535,7 @@ wire [7:0] ones, tens, hundreds;
  
  
  //
+ assign bags_peng = bags_peng_1 + bags_peng_2 + bags_peng_3;
  
     peng_bags_ctl my_peng_bags_ctl(
         .clk(clk40),
@@ -383,7 +545,8 @@ wire [7:0] ones, tens, hundreds;
         .mouse_left(left),
         .bags_peng_in(bags_peng),
               
-        .bags_peng_out(bags_peng_1)
+        .bags_peng_out(bags_peng_out),
+        .score(score)
     );
  
  //char carried bags control
@@ -426,8 +589,9 @@ wire [7:0] ones, tens, hundreds;
                         
     char_peng_bags my_char_held_bags(
         .clk(clk40),
+        .rst(rst),
         .char_xy(char_xy_1),
-        .peng_bags(bags_peng_1),
+        .peng_bags(bags_peng_out),
                           
         .char_code(char_code_1)
     );
@@ -441,7 +605,7 @@ wire [7:0] ones, tens, hundreds;
     );   
              
  
- 
+    assign missed_bags = missed_bags_1 + missed_bags_2 + missed_bags_3;
  
   //char life control
     wire [10:0] hcount_out_l, vcount_out_l;
@@ -484,6 +648,7 @@ wire [7:0] ones, tens, hundreds;
 
     char_life my_char_life(
         .clk(clk40),
+        .rst(rst),
         .char_xy(char_xy_2),
         .missed_bags(missed_bags),
                                                  
@@ -563,7 +728,7 @@ wire [7:0] ones, tens, hundreds;
         .mouse_left(left),
         .mouse_right(right),
         .missed_bags(missed_bags),
-        .bags_carried(bags_peng_1),
+        .bags_carried(bags_peng_out),
         .hsync_s(hsync_out_st),
         .vsync_s(vsync_out_st),
         .rgb_s(rgb_out_st),
@@ -616,3 +781,4 @@ always @(posedge clk40)
               //{r,g,b} <=  {red_out_m,green_out_m,blue_out_m};
               {r,g,b} <=  rgb_out_menu;
            end       
+endmodule

@@ -55,3 +55,11 @@ set_property PULLUP true [get_ports ps2_clk]
 set_property PACKAGE_PIN B17 [get_ports {ps2_data}]
 set_property IOSTANDARD LVCMOS33 [get_ports {ps2_data}]
 set_property PULLUP true [get_ports ps2_data]
+
+##Buttons
+set_property PACKAGE_PIN U18 [get_ports rst]						
+set_property IOSTANDARD LVCMOS33 [get_ports rst]
+set_property PACKAGE_PIN T18 [get_ports start]						
+set_property IOSTANDARD LVCMOS33 [get_ports start]
+set_property PACKAGE_PIN U17 [get_ports replay]						
+set_property IOSTANDARD LVCMOS33 [get_ports replay]

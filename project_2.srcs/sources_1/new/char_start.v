@@ -28,7 +28,7 @@ module char_start(
     );
 
             
-    reg [7:0] code_data;
+    reg [7:0] code_data = 0;
     
     always @*   begin
         char_code = code_data[6:0];

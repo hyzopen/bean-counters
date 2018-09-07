@@ -22,6 +22,7 @@
 
 module buffer_module(
     input wire clk,
+    input wire rst,
     input wire [11:0] xpos_in,
     input wire [11:0] ypos_in,
     
@@ -30,11 +31,16 @@ module buffer_module(
     );
     
     
-always @(posedge clk)
-    begin
-        xpos_out <= xpos_in;
-        ypos_out <= ypos_in;      
-    end   
+    always @(posedge clk) begin
+        if(rst) begin
+            xpos_out <= 0;
+            ypos_out <= 0;
+        end
+        else begin
+            xpos_out <= xpos_in;
+            ypos_out <= ypos_in;      
+        end   
+    end
     
 endmodule
 

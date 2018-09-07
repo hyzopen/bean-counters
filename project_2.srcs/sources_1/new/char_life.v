@@ -22,6 +22,7 @@
 
 module char_life(
    input wire clk,
+   input wire rst,
    input wire [7:0] char_xy,
    input wire [7:0] missed_bags,
    
@@ -31,13 +32,20 @@ module char_life(
 //   localparam ASCII_CONV = 48;
    
 //    reg [7:0] tens = 0, ones = 0, hundreds = 0, tens_nxt = 0, ones_nxt = 0, hundreds_nxt = 0;
-   reg [7:0] first = 'h03, second = 'h03, third = 'h03, first_nxt = 'h03, second_nxt = 'h03, third_nxt = 'h03;
+   reg [7:0] first, second, third, first_nxt, second_nxt, third_nxt;
    
         
    always @(posedge clk) begin
-       first <= first_nxt;
-       second <= second_nxt;
-       third <= third_nxt;
+        if(rst) begin
+            first   <= 0;
+            second  <= 0;
+            third   <= 0;
+        end
+        else begin
+            first <= first_nxt;
+            second <= second_nxt;
+            third <= third_nxt;
+        end
    end
    
    
