@@ -23,7 +23,7 @@
 module score_conv(
     input wire clk,
     input wire rst,
-    input wire [7:0] caught_num,
+    input wire [7:0] score,
     input wire end_game,
     
     output reg [7:0] ones,
@@ -33,7 +33,7 @@ module score_conv(
         
     localparam ASCII_CONV = 48;
     
-    reg [7:0] tens_nxt = 0, ones_nxt = 0, hundreds_nxt = 0;
+    reg [6:0] tens_nxt = 0, ones_nxt = 0, hundreds_nxt = 0;
     
     always @(posedge clk) begin
         if(rst) begin
@@ -50,9 +50,9 @@ module score_conv(
     
     
     always @* begin
-        ones_nxt = caught_num % 10 + ASCII_CONV;
-        tens_nxt = (caught_num % 100 - (caught_num % 10))/10 + ASCII_CONV;
-        hundreds_nxt = (caught_num - (caught_num % 100))/100 + ASCII_CONV;
+        ones_nxt = score % 10 + ASCII_CONV;
+        tens_nxt = (score % 100 - (score % 10))/10 + ASCII_CONV;
+        hundreds_nxt = (score - (score % 100))/100 + ASCII_CONV;
         if(end_game) begin
             ones_nxt = ones;
             tens_nxt = tens;

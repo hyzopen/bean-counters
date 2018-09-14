@@ -24,16 +24,17 @@ module peng_bags_ctl(
   input wire clk,
   input wire rst,
   input wire restart,
-  input wire [9:0] xpos_p,
+  input wire [11:0] xpos_p,
   input wire mouse_left,
   input wire [7:0] bags_peng_in,
+  //input wire [9:0] ypos_p,
   
   output reg [7:0] bags_peng_out,
   output reg [7:0] score
    );
    
    localparam   PENG_WIDTH  = 128,
-                XPOS_END    = 800,
+                XPOS_END    = 650,
                 STATE_SIZE  = 2,
                 
                 STATE_IDLE  = 2'b00,

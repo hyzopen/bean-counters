@@ -99,3 +99,4 @@ module vga_timing (
     end
 
 endmodule
+

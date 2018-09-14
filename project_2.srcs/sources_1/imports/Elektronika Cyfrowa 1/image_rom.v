@@ -2,11 +2,11 @@ module image_rom # (
     parameter
     x_bit_width = 7,
     y_bit_width = 7,
-    image_path = "C:\Users\Klaudusia\Desktop\proj_3\128.data"
+    image_path = "C:/Users/toshiba/Desktop/gra/project_2/penguin_128.data"
  
     )
     (
-    input wire clk ,
+    input wire clk,
     input wire [x_bit_width+y_bit_width-1:0] address,
     output reg [11:0] rgb
 );

@@ -71,18 +71,8 @@ module draw_end_background (
         begin
             // During blanking, make it it black.
             if (vblnk_in || hblnk_in) rgb_out_nxt <= 12'h0_0_0; 
-            else begin
-             // Active display, top edge, make a yellow line.
-              if (vcount_in == 0) rgb_out_nxt <= 12'hf_f_0;
-              // Active display, bottom edge, make a red line.
-              else if (vcount_in == 599) rgb_out_nxt <= 12'hf_0_0;
-              // Active display, left edge, make a green line.
-              else if (hcount_in == 0) rgb_out_nxt <= 12'h0_f_0;
-              // Active display, right edge, make a blue line.
-              else if (hcount_in == 799) rgb_out_nxt <= 12'h0_0_f;
-              // Active display, interior, fill with gray.
-              // You will replace this with your own test.
-              else if (((hcount_in>=300) && (hcount_in<=320) && (vcount_in>=240) && (vcount_in<=360)) 
+            
+            else if (((hcount_in>=300) && (hcount_in<=320) && (vcount_in>=240) && (vcount_in<=360)) 
                       || ((hcount_in>=480) && (hcount_in<=500) && (vcount_in>=240) && (vcount_in<=360))
                       || ((hcount_in>=300) && (hcount_in<=500) && (vcount_in>=240) && (vcount_in<=260))
                       || ((hcount_in>=300) && (hcount_in<=500) && (vcount_in>=340) && (vcount_in<=360)))
@@ -91,7 +81,6 @@ module draw_end_background (
                             
               else rgb_out_nxt <= 12'hd_d_d;
             
-            end
         end     
 endmodule
 

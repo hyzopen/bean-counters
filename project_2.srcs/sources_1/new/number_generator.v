@@ -1,21 +1,29 @@
 `timescale 1ns / 1ps
-
-//////////////////////////////////////////////////////////////////////////////
-/*
- Module name:   number_generator
- Author:        
- Version:       1.0
- Last modified: 2018-08-17
- Coding style: 
- Description:   
- */
-//////////////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////////////
+// Company: 
+// Engineer: 
+// 
+// Create Date: 03.09.2018 16:57:16
+// Design Name: 
+// Module Name: peng_bags_ctl
+// Project Name: 
+// Target Devices: 
+// Tool Versions: 
+// Description: 
+// 
+// Dependencies: 
+// 
+// Revision:
+// Revision 0.01 - File Created
+// Additional Comments:
+// 
+//////////////////////////////////////////////////////////////////////////////////
 
 
 module number_generator(
     input wire clk,
     input wire rst,
-    output reg [7:0] number
+    output reg [7:0] random_number
     );
     
     
@@ -30,14 +38,14 @@ module number_generator(
      begin
       random <= 8'hF; 
       count <= 4'hF;
-      number <= 0;
+      random_number <= 0;
      end
       
      else
      begin
       random <= random_next;
       count <= count_next;
-      number <= random_done;
+      random_number <= random_done;
      end
     end
      

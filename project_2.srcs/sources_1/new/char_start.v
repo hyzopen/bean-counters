@@ -21,7 +21,6 @@
 
 
 module char_start(
-   // input wire clk,
     input wire [7:0] char_xy,
     
     output reg [6:0] char_code

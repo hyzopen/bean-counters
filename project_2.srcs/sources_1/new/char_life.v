@@ -29,9 +29,7 @@ module char_life(
    output reg [6:0] char_code
    );
        
-//   localparam ASCII_CONV = 48;
-   
-//    reg [7:0] tens = 0, ones = 0, hundreds = 0, tens_nxt = 0, ones_nxt = 0, hundreds_nxt = 0;
+
    reg [7:0] first, second, third, first_nxt, second_nxt, third_nxt;
    
         
@@ -55,13 +53,19 @@ module char_life(
        third_nxt = 'h03;
        case (missed_bags)
             0: begin
+                   first_nxt = 'h03;
+                   second_nxt = 'h03;
+                   third_nxt = 'h03;
                end     
             1: begin
                     first_nxt = 'h00;
+                    second_nxt = 'h03;
+                    third_nxt = 'h03;
                end
             2: begin
                     first_nxt = 'h00;
-                    second_nxt = 'h00;   
+                    second_nxt = 'h00; 
+                    third_nxt = 'h03;  
                end
             default: begin
                     first_nxt = 'h00;
@@ -97,23 +101,7 @@ module char_life(
                            8'h0e: code_data = 8'h00;   
                            8'h0f: code_data = 8'h00;   
                            
-                           //line 1                  //      hex
-//                           8'h10: code_data = 8'h00;   // 
-//                           8'h11: code_data = 8'h00;   // 
-//                           8'h12: code_data = 8'h00;   // 
-//                           8'h13: code_data = 8'h00;   // 
-//                           8'h14: code_data = 8'h00;   // 
-//                           8'h15: code_data = 8'h00;   // 
-//                           8'h16: code_data = hundreds;   //  
-//                           8'h17: code_data = tens;   // 
-//                           8'h18: code_data = ones;   // 
-//                           8'h19: code_data = 8'h00;   //     
-//                           8'h1a: code_data = 8'h00;   // 
-//                           8'h1b: code_data = 8'h00;   // 
-//                           8'h1c: code_data = 8'h00;   // 
-//                           8'h1d: code_data = 8'h00;   // 
-//                           8'h1e: code_data = 8'h00;   // 
-//                           8'h1f: code_data = 8'h00;   // 
+             
                         
                        endcase
                end            

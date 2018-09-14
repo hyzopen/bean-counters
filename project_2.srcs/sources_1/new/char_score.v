@@ -28,44 +28,47 @@ module char_score(
     output reg [6:0] char_code
     );
         
-  
+  reg [7:0] code_data;
+    always @*   begin
+        char_code = code_data[6:0];
+    end
     always @*   begin
         case (char_xy)
             //line 0             
-            8'h00: char_code = 7'h00;   
-            8'h01: char_code = 7'h00;   
-            8'h02: char_code = 7'h00;   
-            8'h03: char_code = 7'h00;   
-            8'h04: char_code = 7'h00;   
-            8'h05: char_code = "S";   
-            8'h06: char_code = "C";    
-            8'h07: char_code = "O";   
-            8'h08: char_code = "R";   
-            8'h09: char_code = "E";      
-            8'h0a: char_code = 7'h00;   
-            8'h0b: char_code = 7'h00;   
-            8'h0c: char_code = 7'h00;   
-            8'h0d: char_code = 7'h00;   
-            8'h0e: char_code = 7'h00;   
-            8'h0f: char_code = 7'h00;   
+            8'h00: code_data = 8'h00;   
+            8'h01: code_data = 8'h00;    
+            8'h02: code_data = 8'h00;   
+            8'h03: code_data = 8'h00;    
+            8'h04: code_data = 8'h00;    
+            8'h05: code_data = "S";   
+            8'h06: code_data = "C";    
+            8'h07: code_data = "O";   
+            8'h08: code_data = "R";   
+            8'h09: code_data = "E";      
+            8'h0a: code_data = 8'h00;    
+            8'h0b: code_data = 8'h00;    
+            8'h0c: code_data = 8'h00;    
+            8'h0d: code_data = 8'h00;    
+            8'h0e: code_data = 8'h00;    
+            8'h0f: code_data = 8'h00;    
                             
             //line 1                 
-            8'h10: char_code = 7'h00;    
-            8'h11: char_code = 7'h00;    
-            8'h12: char_code = 7'h00;   
-            8'h13: char_code = 7'h00;  
-            8'h14: char_code = 7'h00; 
-            8'h15: char_code = 7'h00;   
-            8'h16: char_code = hundreds;  
-            8'h17: char_code = tens;  
-            8'h18: char_code = ones;  
-            8'h19: char_code = 7'h00;     
-            8'h1a: char_code = 7'h00;  
-            8'h1b: char_code = 7'h00;   
-            8'h1c: char_code = 7'h00;  
-            8'h1d: char_code = 7'h00;  
-            8'h1e: char_code = 7'h00;  
-            8'h1f: char_code = 7'h00;  
+            8'h10: code_data = 8'h00;     
+            8'h11: code_data = 8'h00;     
+            8'h12: code_data = 8'h00;    
+            8'h13: code_data = 8'h00;   
+            8'h14: code_data = 8'h00;  
+            8'h15: code_data = 8'h00;    
+            8'h16: code_data = hundreds;  
+            8'h17: code_data = tens;  
+            8'h18: code_data = ones;  
+            8'h19: code_data = 8'h00;      
+            8'h1a: code_data = 8'h00;   
+            8'h1b: code_data = 8'h00;    
+            8'h1c: code_data = 8'h00;   
+            8'h1d: code_data = 8'h00;   
+            8'h1e: code_data = 8'h00;   
+            8'h1f: code_data = 8'h00;   
                          
         endcase
     end            

@@ -43,11 +43,11 @@ module draw_end(
 
     );
     
-wire [10:0] hcount_out_d, vcount_out_d, hcount_out_c, vcount_out_c;
-wire hsync_out_d, vsync_out_d, hblnk_out_d, vblnk_out_d, hsync_out_c, vsync_out_c, hblnk_out_c, vblnk_out_c;
-wire [11:0] rgb_out_d, rgb_out_c;
+	wire [10:0] hcount_out_d, vcount_out_d, hcount_out_c, vcount_out_c;
+	wire hsync_out_d, vsync_out_d, hblnk_out_d, vblnk_out_d, hsync_out_c, vsync_out_c, hblnk_out_c, vblnk_out_c;
+	wire [11:0] rgb_out_d, rgb_out_c;
 
-draw_end_background my_draw_end_bckground(
+	draw_end_background draw_end_bckground(
       .vcount_in(vcount_in),
       .vsync_in(vsync_in),
       .vblnk_in(vblnk_in),
@@ -65,71 +65,68 @@ draw_end_background my_draw_end_bckground(
       .hblnk_out(hblnk_out_d),
       .rgb_out(rgb_out_d)
       );
-      
 
-//wire [10:0] hcount_out_c, vcount_out_c;
-//wire hsync_out_c, vsync_out_c;
-//wire vblnk_out_c, hblnk_out_c;
-//wire [11:0] rgb_out_c;
                      
-wire [7:0] char_pixels, char_xy;
-wire [3:0] char_line;
-wire [6:0] char_code;
-wire [10:0] addr;
+	wire [7:0] char_pixels, char_xy;
+	wire [3:0] char_line;
+	wire [6:0] char_code;
+	wire [10:0] addr;
                   
-draw_rect_char # (
- .X_UP_LEFT_CORNER(336),
- .Y_UP_LEFT_CORNER(400),
- .TEXT_HEIGHT(2)
- )
-my_draw_rect_char_end(
-    .pclk(clk_e),
-    .hcount_in(hcount_out_d),
-    .hsync_in(hsync_out_d),
-    .hblnk_in(hblnk_out_d),
-    .vcount_in(vcount_out_d),
-    .vsync_in(vsync_out_d),
-    .vblnk_in(vblnk_out_d),
-    .rgb_in(rgb_out_d),
-    .char_pixels(char_pixels),
-                    
-    .hcount_out(hcount_out_c),
-    .hsync_out(hsync_out_c),
-    .hblnk_out(hblnk_out_c),
-    .vcount_out(vcount_out_c),
-    .vsync_out(vsync_out_c),
-    .vblnk_out(vblnk_out_c),
-    .rgb_out(rgb_out_c),
-    .char_xy(char_xy),
-    .char_line(char_line)
-    ); 
-                  
-char_end my_char_end(
-    .char_xy(char_xy),
-                    
-    .char_code(char_code)
-    );
-                  
-assign addr = {char_code, char_line};
-                  
- font_rom my_font_rom_end(
-    .clk(clk_e),
-    .addr(addr),
-    .char_line_pixels(char_pixels)
-    );   
-       
- wire [7:0] char_pixels_s, char_xy_s;
-    wire [3:0] char_line_s;
-    wire [6:0] char_code_s;
-    wire [10:0] addr_s;
+	draw_rect_char # (
+	 .X_UP_LEFT_CORNER(336),
+	 .Y_UP_LEFT_CORNER(400),
+	 .TEXT_HEIGHT(2)
+	 )
+	draw_rect_char_end(
+		.pclk(clk_e),
+		.rst(rst),
+		.hcount_in(hcount_out_d),
+		.hsync_in(hsync_out_d),
+		.hblnk_in(hblnk_out_d),
+		.vcount_in(vcount_out_d),
+		.vsync_in(vsync_out_d),
+		.vblnk_in(vblnk_out_d),
+		.rgb_in(rgb_out_d),
+		.char_pixels(char_pixels),
+						
+		.hcount_out(hcount_out_c),
+		.hsync_out(hsync_out_c),
+		.hblnk_out(hblnk_out_c),
+		.vcount_out(vcount_out_c),
+		.vsync_out(vsync_out_c),
+		.vblnk_out(vblnk_out_c),
+		.rgb_out(rgb_out_c),
+		.char_xy(char_xy),
+		.char_line(char_line)
+		); 
+					  
+	char_end char_end(
+		.char_xy(char_xy),
+						
+		.char_code(char_code)
+		);
+					  
+	assign addr = {char_code, char_line};
+					  
+	 font_rom font_rom_end(
+		.clk(clk_e),
+		.addr(addr),
+		.char_line_pixels(char_pixels)
+		);   
+		   
+	wire [7:0] char_pixels_s, char_xy_s;
+	wire [3:0] char_line_s;
+	wire [6:0] char_code_s;
+	wire [10:0] addr_s;
                       
     draw_rect_char # (
      .X_UP_LEFT_CORNER(336),
      .Y_UP_LEFT_CORNER(276),
      .TEXT_HEIGHT(3)
      )
-    my_draw_rect_char_end_s(
+    draw_rect_char_score(
         .pclk(clk_e),
+        .rst(rst),
         .hcount_in(hcount_out_c),
         .hsync_in(hsync_out_c),
         .hblnk_in(hblnk_out_c),
@@ -150,7 +147,7 @@ assign addr = {char_code, char_line};
         .char_line(char_line_s)
         ); 
                       
-    char_end_score my_char_end_s(
+    char_end_score char_end_score(
         .char_xy(char_xy_s),
         .ones(ones),
         .tens(tens),
@@ -161,7 +158,7 @@ assign addr = {char_code, char_line};
                       
     assign addr_s = {char_code_s, char_line_s};
                       
-     font_rom my_font_rom_end_s(
+     font_rom font_rom_score(
         .clk(clk_e),
         .addr(addr_s),
         .char_line_pixels(char_pixels_s)

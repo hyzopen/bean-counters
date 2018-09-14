@@ -39,10 +39,6 @@ set_property IOSTANDARD LVCMOS33 [get_ports {b[2]}]
 set_property PACKAGE_PIN J18 [get_ports {b[3]}]
 set_property IOSTANDARD LVCMOS33 [get_ports {b[3]}]
 
-# Constraints for PCLK_MIRROR
-set_property PACKAGE_PIN J1 [get_ports {pclk_mirror}]
-set_property IOSTANDARD LVCMOS33 [get_ports {pclk_mirror}]
-
 # Constraints for CFGBVS
 set_property CFGBVS VCCO [current_design]
 set_property CONFIG_VOLTAGE 3.3 [current_design]

@@ -38,6 +38,7 @@ module draw_start_background (
   output reg hblnk_out,
   output reg [11:0] rgb_out
   );
+  localparam X_START=1,Y_START=1;
   
   reg [11:0] rgb_out_nxt;
        
@@ -71,21 +72,8 @@ module draw_start_background (
         begin
             // During blanking, make it it black.
             if (vblnk_in || hblnk_in) rgb_out_nxt <= 12'h0_0_0; 
-            else
-            begin
-             // Active display, top edge, make a yellow line.
-              if (vcount_in == 0) rgb_out_nxt <= 12'hf_f_0;
-              // Active display, bottom edge, make a red line.
-              else if (vcount_in == 599) rgb_out_nxt <= 12'hf_0_0;
-              // Active display, left edge, make a green line.
-              else if (hcount_in == 0) rgb_out_nxt <= 12'h0_f_0;
-              // Active display, right edge, make a blue line.
-              else if (hcount_in == 799) rgb_out_nxt <= 12'h0_0_f;
-              // Active display, interior, fill with gray.
+ 
               
-              else rgb_out_nxt <= 12'hd_d_d;
-            
-            end
+            else rgb_out_nxt <= 12'hd_d_d;
         end     
 endmodule
-

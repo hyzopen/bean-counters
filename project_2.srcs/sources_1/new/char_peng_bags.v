@@ -24,24 +24,20 @@ module char_peng_bags(
    input wire clk,
    input wire rst,
    input wire [7:0] char_xy,
-   input wire [7:0] peng_bags,
+   input wire [3:0] peng_bags,
    
    output reg [6:0] char_code
    );
        
     localparam ASCII_CONV = 48;
    
-    reg [7:0] tens, ones, hundreds, tens_nxt, ones_nxt, hundreds_nxt;
+    reg [7:0] ones, ones_nxt;
    
     always @(posedge clk) begin
         if(rst) begin
-            hundreds    <= 0;
-            tens        <= 0;
             ones        <= 0;
         end
         else begin
-            hundreds    <= hundreds_nxt;
-            tens        <= tens_nxt;
             ones        <= ones_nxt;
         end
    end
@@ -49,10 +45,6 @@ module char_peng_bags(
    
    always @* begin
        ones_nxt = peng_bags % 10 + ASCII_CONV;
-       tens_nxt = (peng_bags - (peng_bags % 10))/10 + ASCII_CONV;
-       if(peng_bags >= 100)
-           tens_nxt = tens_nxt - 10;
-       hundreds_nxt = (peng_bags - (peng_bags % 100))/100 + ASCII_CONV;
    end
 
            
@@ -88,9 +80,9 @@ module char_peng_bags(
                            8'h13: code_data = 8'h00;   // 
                            8'h14: code_data = 8'h00;   // 
                            8'h15: code_data = 8'h00;   // 
-                           8'h16: code_data = hundreds;   //  
-                           8'h17: code_data = tens;   // 
-                           8'h18: code_data = ones;   // 
+                           8'h16: code_data = 8'h00;   //  
+                           8'h17: code_data = ones;   // 
+                           8'h18: code_data = 8'h00;   // 
                            8'h19: code_data = 8'h00;   //     
                            8'h1a: code_data = 8'h00;   // 
                            8'h1b: code_data = 8'h00;   // 
